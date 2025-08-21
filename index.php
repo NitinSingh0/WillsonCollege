@@ -2,7 +2,6 @@
 session_start();
 include('includes/dbconn.php');
 
-
 if (isset($_SESSION['id'])) {
     header("Location: student/dashboard.php");
     exit();
@@ -10,16 +9,16 @@ if (isset($_SESSION['id'])) {
 
 if (isset($_POST['login'])) {
     $email = $_POST['email'];
-    $password = md5($_POST['password']);
+    $password = md5($_POST['password']); // must match registration hash
 
-    $stmt = $mysqli->prepare("SELECT id FROM userregistration WHERE email=? AND password=?");
+    // ✅ Use Student_id (correct column in DB)
+    $stmt = $mysqli->prepare("SELECT Student_id FROM student WHERE Email=? AND Password=?");
     $stmt->bind_param('ss', $email, $password);
     $stmt->execute();
-    $stmt->bind_result($id);
- 
+    $stmt->bind_result($student_id);
+
     if ($stmt->fetch()) {
-        $_SESSION['id'] = $id;
-        
+        $_SESSION['id'] = $student_id; // store student session ID
         header("Location: student/dashboard.php");
         exit();
     } else {
@@ -29,6 +28,7 @@ if (isset($_POST['login'])) {
     $stmt->close();
 }
 ?>
+
 
 
 <!DOCTYPE html>
@@ -43,13 +43,13 @@ if (isset($_POST['login'])) {
 
     <script src="https://cdn.tailwindcss.com"></script>
 
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
         body {
             font-family: 'Rubik', sans-serif;
-            background: linear-gradient(to right, #1c1c1c,rgb(79, 61, 221));
+            background: linear-gradient(to right, #1c1c1c, rgb(79, 61, 221));
         }
 
         .fade-in {
@@ -100,7 +100,7 @@ if (isset($_POST['login'])) {
         </form>
 
         <div class="text-center mt-5">
-            <a href="warden/index.php" class="text-sm text-blue-300 hover:text-white underline transition">Go to Admin Panel</a>
+            <a href="warden/login.php" class="text-sm text-blue-300 hover:text-white underline transition">Go to Admin Panel</a>
         </div>
     </div>
 
